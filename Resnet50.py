@@ -56,7 +56,7 @@ def read_images(pathImageDirectory, pathDatasetFile):
 
 def main():
     
-    tf.test.is_gpu_available()
+    tf.config.list_physical_devices('GPU')
     
     train_folder = 'CXR8/training_images'
     val_folder = 'CXR8/validation_images'
@@ -67,8 +67,8 @@ def main():
     #val_images = read_images(val_images_list, val_folder)
     #test_images = read_file("Xray14_test_official.txt")
     
-    train_label = get_binary_encoding("Xray14_train_official.txt")
-    val_label = get_binary_encoding("Xray14_val_official.txt")
+    train_label = get_binary_encoding("CXR8/Xray14_train_official.txt")
+    val_label = get_binary_encoding("CXR8/Xray14_val_official.txt")
 
     print(train_images.shape)
     print(train_label.shape)
