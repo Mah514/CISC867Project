@@ -65,12 +65,6 @@ class Transform:
         self.crop_transform=transforms.Compose([
             transforms.RandomResizedCrop(224, scale=(0.2, 1.))])
         
-#        self.transform = transforms.Compose([transforms.RandomApply([
-#            transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)
-#        ], p=0.8),
-#        transforms.RandomApply([GaussianBlur([.1, 2.])], p=0.5),
-#        transforms.RandomHorizontalFlip()])
-        
         self.transform = A.Compose(
             [A.CLAHE(p=0.6),
              A.Emboss(p=0.6),
