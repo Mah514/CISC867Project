@@ -72,24 +72,24 @@ class Transform:
 #        transforms.RandomHorizontalFlip()])
         
         self.transform = A.Compose(
-            [#A.CLAHE(p=0.6),
-             #A.Emboss(p=0.6),
-             #A.FancyPCA(p=0.6),
-             #A.RandomToneCurve(p=0.6),
+            [A.CLAHE(p=0.6),
+             A.Emboss(p=0.6),
+             A.FancyPCA(p=0.6),
+             A.RandomToneCurve(p=0.6),
              A.ColorJitter (brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1, always_apply=False, p=0.8),
-             #A.ChannelShuffle(p=0.5),
-             #A.Sharpen(p=0.6),
-             random.choice(A.GaussianBlur (blur_limit=0, sigma_limit=[0.1, 2.0], always_apply=False, p=0.6),
+             A.ChannelShuffle(p=0.5),
+             A.Sharpen(p=0.6),
+             random.choice([A.GaussianBlur (blur_limit=0, sigma_limit=[0.1, 2.0], always_apply=False, p=0.6),
                            A.GlassBlur(p=0.6),
                            A.RandomFog(p=0.6),
-                           A.ZoomBlur(max_factor=1.05,p=0.6)),
+                           A.ZoomBlur(max_factor=1.05,p=0.6)]),
              A.HorizontalFlip(p=0.5)])
         
         self.more_transforms = A.Compose(
             [
-                random.choice(A.GaussNoise(var_limit=(5,15), p=0.6),
-                              A.ISONose(intensity=(1,1), p=0.6),
-                              A.Spatter(p=0.6)),
+                random.choice([A.GaussNoise(var_limit=(5,15), p=0.6),
+                              A.ISONoise(intensity=(1,1), p=0.6),
+                              A.Spatter(p=0.6)]),
                 A.RandomGamma(gamma_limit=(150,250),p=0.8),
                 A.RandomGravel(gravel_roi=(0, 0, 1, 1), number_of_patches=50,p=0.5),
                 A.RandomRain(p=0.5),
@@ -118,8 +118,8 @@ class Transform:
             y2=self.to_tensor(y2)
             return [y1,y2]
         else:
-            #y1 = self.more_transforms(y1)['image']
-            #y2 = self.more_transforms(y2)['image']
+            y1 = self.more_transforms(image=y1)['image']
+            y2 = self.more_transforms(image=y2)['image']
             y1 = self.reconstruction_transform(Image.fromarray(y1))
             y2 = self.reconstruction_transform(Image.fromarray(y2))
             y1_orig_1c = y1_orig.convert('L')
