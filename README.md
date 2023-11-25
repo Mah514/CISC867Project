@@ -12,6 +12,7 @@ python main_segmentation.py --data_set DRIVE  \
 
 
 This runs the code from BenchmarkTransferLearning, however the following code was added to the original repository in engine.py:
+```
 if args.init.lower() == "imagenet":
             print("Training DiRA")
             # Initialize U-Net with the specified backbone and 'imagenet' pre-trained weights
@@ -46,3 +47,4 @@ if args.init.lower() == "imagenet":
             modified_custom_keys = set(state_dict.keys())  # Get the modified keys from your custom state dictionary
             used_keys = modified_custom_keys.intersection(unet_keys)
             #print("Keys from the pre-trained model that were used:", used_keys)
+```
