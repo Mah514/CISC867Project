@@ -201,34 +201,78 @@ def segmentation_engine(args, model_path, dataset_train, dataset_val, dataset_te
             model = smp.Unet(args.backbone, encoder_weights='imagenet', activation=args.activate)
 
             # Load your custom weights
-            weight = 'checkpoint.pth'  # Replace with the path to your model weights
+            weight = 'checkpoint.pth'
             state_dict = torch.load(weight, map_location="cpu")
 
             # Check if state dict is nested under 'state_dict' key
             if "state_dict" in state_dict:
                 state_dict = state_dict["state_dict"]
 
-            # Adjust the keys by removing 'module.' and 'backbone.' prefixes
-            state_dict = {k.replace("module.", ""): v for k, v in state_dict.items()}
-            state_dict = {k.replace("backbone.", ""): v for k, v in state_dict.items()}
+            # Adjust the keys by removing 'module.', 'backbone.', 'encoder_k.', and 'encoder_q.' prefixes
+            state_dict = {k.replace("module.", "").replace("backbone.", "").replace("encoder_k.", "").replace("encoder_q.", ""): v for k, v in state_dict.items()}
 
             # Remove keys that do not belong to the U-Net architecture
             for k in list(state_dict.keys()):
                 if k.startswith('fc') or k.startswith('segmentation_head'):
                     del state_dict[k]
 
+            # Fetch the U-Net model's keys before loading the state_dict
+            unet_state_dict = model.state_dict()
+            unet_keys = set(unet_state_dict.keys())
+
             # Load the adjusted state dictionary into the model
             msg = model.load_state_dict(state_dict, strict=False)
             print("=> loaded pre-trained model '{}'".format(weight))
-            #print("missing keys:", msg.missing_keys)
+            print("missing keys:", msg.missing_keys)
+
+            # Determine which keys from the pre-trained model were used
+            modified_custom_keys = set(state_dict.keys())  # Get the modified keys from your custom state dictionary
+            used_keys = modified_custom_keys.intersection(unet_keys)
+            #print("Keys from the pre-trained model that were used:", used_keys)
+
 
         else:
-            model = smp.Unet(args.backbone, encoder_weights=args.proxy_dir, activation=args.activate)
+            #model = smp.Unet(args.backbone, encoder_weights=args.proxy_dir, activation=args.activate)
+
+            # Load the model with default pre-trained weights
+           # model = smp.Unet(args.backbone, encoder_weights=None, activation=args.activate) 
+            # Load your custom weights
+           # custom_weights = torch.load('/home/jovyan/deeplearning/DiRA/classification_checkpoint/DiRA_moco/dira/checkpoint.pth') 
+            # Adjust the keys by removing the 'backbone.' prefix
+           # adjusted_weights = {k.replace('backbone.', ''): v for k, v in custom_weights.items()} 
+            # Update the model's weights
+           # model.load_state_dict(adjusted_weights, strict=False)
+           # 
+            backbone = 'resnet50'
+            weight = 'checkpoint.pth'
+            model = smp.Unet(backbone)
+            state_dict = torch.load(weight, map_location="cpu")
+            if "state_dict" in state_dict:
+                state_dict = state_dict["state_dict"]
+            state_dict = {k.replace("encoder.", ""): v for k, v in state_dict.items()}
+
+            # Remove keys related to fc and segmentation_head
+            for k in list(state_dict.keys()):
+                if k.startswith('fc') or k.startswith('segmentation_head'):
+                    del state_dict[k]
+
+            # Check for missing and unexpected keys
+            missing_keys = [key for key in model.state_dict().keys() if key not in state_dict]
+            unexpected_keys = [key for key in state_dict.keys() if key not in model.state_dict()]
+
+            # Print missing and unexpected keys
+           # print("Missing keys:", missing_keys)
+           # print("Unexpected keys:", unexpected_keys)
+
+            # Load the modified state dictionary
+            msg = model.load_state_dict(state_dict, strict=False)
+            print("=> loaded pre-trained model '{}'".format(weight))
+           # print("missing keys:", msg.missing_keys)
 
 
         optimizer = torch.optim.Adam(model.parameters(), args.learning_rate)
-        if torch.cuda.device_count() > 1:
-            model = torch.nn.DataParallel(model)
+       # if torch.cuda.device_count() > 1:
+        #    model = torch.nn.DataParallel(model)
         model.to(device)
         best_val_loss = 100000
         patience_counter = 0
