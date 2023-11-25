@@ -48,3 +48,4 @@ if args.init.lower() == "imagenet":
             used_keys = modified_custom_keys.intersection(unet_keys)
             #print("Keys from the pre-trained model that were used:", used_keys)
 ```
+The above code loads a standard imagenet model, and then updates its weights with the weights from the pre-trained model "checkpoint.pth"
