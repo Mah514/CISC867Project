@@ -1,0 +1,39 @@
+testing....
+testing....
+testing....
+Done testing iteration!
+[INFO] Dice = 67.12%
+Mean Dice = 0.6693
+testing....
+testing....
+Done testing iteration!
+[INFO] Dice = 78.99%
+Mean Dice = 0.7891
+testing....
+Done testing iteration!
+[INFO] Dice = 75.26%
+Mean Dice = 0.7511
+testing....
+Done testing iteration!
+[INFO] Dice = 77.56%
+Mean Dice = 0.7746
+entered testing
+Checkpoint loaded.
+State dict adjusted.
+Model state dict loaded.
+Model moved to device.
+testing....
+Processing batch 1
+Done testing iteration!
+[INFO] Dice = 72.76%
+Mean Dice = 0.7255
+entered testing
+Checkpoint loaded.
+State dict adjusted.
+Model state dict loaded.
+Model moved to device.
+testing....
+Processing batch 1
+Done testing iteration!
+[INFO] Dice = 79.00%
+Mean Dice = 0.7894
