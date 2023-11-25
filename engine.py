@@ -176,75 +176,102 @@ def classification_engine(args, model_path, output_path, diseases, dataset_train
       writer.write("STD over All trials:  = {:.4f}\n".format(np.std(mean_auc)))
 
 def segmentation_engine(args, model_path, dataset_train, dataset_val, dataset_test,criterion):
-  device = torch.device(args.device)
-  if not os.path.exists(model_path):
-    os.makedirs(model_path)
+    device = torch.device(args.device)
+    if not os.path.exists(model_path):
+        os.makedirs(model_path)
 
-  logs_path = os.path.join(model_path, "Logs")
-  if not os.path.exists(logs_path):
-    os.makedirs(logs_path)
+    logs_path = os.path.join(model_path, "Logs")
+    if not os.path.exists(logs_path):
+        os.makedirs(logs_path)
 
-  if os.path.exists(os.path.join(logs_path, "log.txt")):
-    log_writter = open(os.path.join(logs_path, "log.txt"), 'a')
-  else:
-    log_writter = open(os.path.join(logs_path, "log.txt"), 'w')
-
-  if args.mode == "train":
-    start_num_epochs=0
-    data_loader_train = torch.utils.data.DataLoader(dataset_train, batch_size=args.train_batch_size, shuffle=True,
-                                                 num_workers=args.train_num_workers)
-    data_loader_val = torch.utils.data.DataLoader(dataset_val, batch_size=args.train_batch_size,
-                                                      shuffle=False, num_workers=args.train_num_workers)
-    if args.init.lower() == "imagenet":
-      model = smp.Unet(args.backbone, encoder_weights=args.init, activation=args.activate)
+    if os.path.exists(os.path.join(logs_path, "log.txt")):
+        log_writter = open(os.path.join(logs_path, "log.txt"), 'a')
     else:
-      model = smp.Unet(args.backbone, encoder_weights='imagenet', activation=args.activate)
-      custom_weights = torch.load('checkpoint.pth')
-      model.load_state_dict(custom_weights, strict=False)
+        log_writter = open(os.path.join(logs_path, "log.txt"), 'w')
 
-    optimizer = torch.optim.Adam(model.parameters(), args.learning_rate)
-    if torch.cuda.device_count() > 1:
-      model = torch.nn.DataParallel(model)
-    model.to(device)
-    best_val_loss = 100000
-    patience_counter = 0
+    if args.mode == "train":
+        start_num_epochs=0
+        data_loader_train = torch.utils.data.DataLoader(dataset_train, batch_size=args.train_batch_size, shuffle=True,
+                                                     num_workers=args.train_num_workers)
+        data_loader_val = torch.utils.data.DataLoader(dataset_val, batch_size=args.train_batch_size,
+                                                      shuffle=False, num_workers=args.train_num_workers)
+        if args.init.lower() == "imagenet":
+            print("Training DiRA")
+            # Initialize U-Net with the specified backbone and 'imagenet' pre-trained weights
+            model = smp.Unet(args.backbone, encoder_weights='imagenet', activation=args.activate)
 
-    for epoch in range(start_num_epochs, args.epochs):
-        train_one_epoch(data_loader_train,device, model, criterion, optimizer, epoch)
-        val_loss = evaluate(data_loader_val, device,model, criterion)
-        # update learning rate
-        lr_ = cosine_anneal_schedule(epoch,args.epochs,args.learning_rate)
-        for param_group in optimizer.param_groups:
-          param_group['lr'] = lr_
-        if val_loss < best_val_loss:
-          torch.save({
-            'epoch': epoch + 1,
-            'lossMIN': best_val_loss,
-            'state_dict': model.state_dict(),
-            'optimizer': optimizer.state_dict(),
-          },  os.path.join(model_path, "checkpoint.pt"))
+            # Load your custom weights
+            weight = 'checkpoint.pth'  # Replace with the path to your model weights
+            state_dict = torch.load(weight, map_location="cpu")
 
-          best_val_loss = val_loss
-          patience_counter = 0
+            # Check if state dict is nested under 'state_dict' key
+            if "state_dict" in state_dict:
+                state_dict = state_dict["state_dict"]
 
-          print(
-            "Epoch {:04d}: val_loss improved from {:.5f} to {:.5f}, saving model to {}".format(epoch, best_val_loss, val_loss, os.path.join(model_path,"checkpoint.pt")))
-          best_val_loss = val_loss
+            # Adjust the keys by removing 'module.' and 'backbone.' prefixes
+            state_dict = {k.replace("module.", ""): v for k, v in state_dict.items()}
+            state_dict = {k.replace("backbone.", ""): v for k, v in state_dict.items()}
+
+            # Remove keys that do not belong to the U-Net architecture
+            for k in list(state_dict.keys()):
+                if k.startswith('fc') or k.startswith('segmentation_head'):
+                    del state_dict[k]
+
+            # Load the adjusted state dictionary into the model
+            msg = model.load_state_dict(state_dict, strict=False)
+            print("=> loaded pre-trained model '{}'".format(weight))
+            #print("missing keys:", msg.missing_keys)
+
         else:
-          print("Epoch {:04d}: val_loss did not improve from {:.5f} ".format(epoch, best_val_loss ))
-          patience_counter += 1
+            model = smp.Unet(args.backbone, encoder_weights=args.proxy_dir, activation=args.activate)
 
-        if patience_counter > args.patience:
-          print("Early Stopping")
-          break
 
-        log_writter.flush()
-  torch.cuda.empty_cache()
+        optimizer = torch.optim.Adam(model.parameters(), args.learning_rate)
+        if torch.cuda.device_count() > 1:
+            model = torch.nn.DataParallel(model)
+        model.to(device)
+        best_val_loss = 100000
+        patience_counter = 0
 
-  data_loader_test = torch.utils.data.DataLoader(dataset_test, batch_size=args.test_batch_size, shuffle=False,
+        for epoch in range(start_num_epochs, args.epochs):
+            train_one_epoch(data_loader_train,device, model, criterion, optimizer, epoch)
+            val_loss = evaluate(data_loader_val, device,model, criterion)
+            # update learning rate
+            lr_ = cosine_anneal_schedule(epoch,args.epochs,args.learning_rate)
+            for param_group in optimizer.param_groups:
+                param_group['lr'] = lr_
+            if val_loss < best_val_loss:
+                torch.save({
+                    'epoch': epoch + 1,
+                    'lossMIN': best_val_loss,
+                    'state_dict': model.state_dict(),
+                    'optimizer': optimizer.state_dict(),
+                },  os.path.join(model_path, "checkpoint.pt"))
+
+                best_val_loss = val_loss
+                patience_counter = 0
+
+                print(
+                    "Epoch {:04d}: val_loss improved from {:.5f} to {:.5f}, saving model to {}".format(epoch, best_val_loss, val_loss, os.path.join(model_path,"checkpoint.pt")))
+                best_val_loss = val_loss
+            else:
+                print("Epoch {:04d}: val_loss did not improve from {:.5f} ".format(epoch, best_val_loss ))
+                patience_counter += 1
+
+            if patience_counter > args.patience:
+                print("Early Stopping")
+                break
+
+            log_writter.flush()
+            
+    torch.cuda.empty_cache()
+    print("finished training")
+    data_loader_test = torch.utils.data.DataLoader(dataset_test, batch_size=args.test_batch_size, shuffle=False,
                                                 num_workers=args.test_num_workers)
-  test_y, test_p = test_segmentation(model, os.path.join(model_path, "checkpoint.pt"), data_loader_test, device, log_writter)
+    test_y, test_p = test_segmentation(model, os.path.join(model_path, "checkpoint.pt"), data_loader_test, device, log_writter)
+    print("Finished testing")
+    print("[INFO] Dice = {:.2f}%".format(100.0 * dice(test_p, test_y)), file=log_writter)
+    print("Mean Dice = {:.4f}".format(mean_dice_coef(test_y > 0.5, test_p > 0.5)), file=log_writter)
+    log_writter.flush()
 
-  print("[INFO] Dice = {:.2f}%".format(100.0 * dice(test_p, test_y)), file=log_writter)
-  print("Mean Dice = {:.4f}".format(mean_dice_coef(test_y > 0.5, test_p > 0.5)), file=log_writter)
-  log_writter.flush()
+
