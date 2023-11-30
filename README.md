@@ -91,7 +91,7 @@ Run the following to download the necessary models:
 python download_and_prepare_models.py
 ```
 
-Then, copy and paste the "checkpoint.pth" file that was created from training DiRA into the BenchmarkTransferLearning/models run the following, in the BenchmarkTransferLearning folder with the other downloaded models, and rename it however you want. To complete the training and testing process run the following:
+Then, copy and paste the "checkpoint.pth" file that was created from training DiRA (located at checkpoint/DiRA_moco/dira) into the BenchmarkTransferLearning/models folder with the other downloaded models, and rename it however you want. To complete the training and testing process run the following:
 
 ```
 python main_classification.py --data_set ChestXray14  \
