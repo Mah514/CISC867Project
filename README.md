@@ -49,3 +49,9 @@ if args.init.lower() == "imagenet":
             #print("Keys from the pre-trained model that were used:", used_keys)
 ```
 The above code loads a standard imagenet model, and then updates its weights with the weights from the pre-trained model "checkpoint.pth"
+
+## Classification
+
+`$ git clone https://github.com/fhaghighi/DiRA.git
+$ cd DiRA/
+$ pip install -r requirements.txt`
