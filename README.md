@@ -52,6 +52,8 @@ The above code loads a standard imagenet model, and then updates its weights wit
 
 ## Classification
 
+This model must be run on a multi-GPU system. Work was done on this model via the [L1NNA Lab's](https://l1nna.com/) GPU cluster.
+
 The following instructions were pulled in part from the [DiRA Github Page](https://github.com/fhaghighi/DiRA).
 
 Clone the DiRA repository and install requirements by executing the following command:
