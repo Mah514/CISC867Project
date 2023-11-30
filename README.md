@@ -52,6 +52,55 @@ The above code loads a standard imagenet model, and then updates its weights wit
 
 ## Classification
 
-`$ git clone https://github.com/fhaghighi/DiRA.git
-$ cd DiRA/
-$ pip install -r requirements.txt`
+The following instructions were pulled in part from the [DiRA Github Page](https://github.com/fhaghighi/DiRA).
+
+Clone the DiRA repository and install requirements by executing the following command:
+
+```
+$ git clone https://github.com/fhaghighi/DiRA.git
+```
+
+From here, please replace the necessary files with our files located in the DiRA folder.
+
+Then, using our requirements.txt file, run the following:
+
+```
+$ pip3 install -r requirements.txt
+```
+From here, there are no additional changes that need to be made, and the rest can be run in a straightforward manner.
+
+Run the following to warm up the DiRA encoder and decoder (change epochs as desired)
+
+```
+$ python main_DiRA_moco.py /path/to/images/folder --dist-url 'tcp://localhost:10001' --multiprocessing-distributed \
+--world-size 1 --rank 0 --mlp --moco-t 0.2  --cos --mode dir --epochs 10
+```
+
+Then, run the following to train the DiRA model, varying the number of epochs as desired:
+
+```
+python main_DiRA_moco.py /path/to/images/folder --dist-url 'tcp://localhost:10001' --multiprocessing-distributed \
+--world-size 1 --rank 0 --mlp --moco-t 0.2  --cos --mode dira --batch-size 16   --epochs 10 --generator_pre_trained_weights checkpoint/DiRA_moco/dir/checkpoint.pth 
+```
+
+From here, we refer to the [Benchmark Transfer Learning Github page](https://github.com/MR-HosseinzadehTaher/BenchmarkTransferLearning). Please ensure that the necessary files are downloaded from there, and that our provided files have been used to replace the files of the same name in their repo.
+
+Run the following to download the necessary models:
+
+```
+python download_and_prepare_models.py
+```
+
+Then, copy and paste the "checkpoint.pth" file that was created from training DiRA into the BenchmarkTransferLearning/models run the following, in the BenchmarkTransferLearning folder with the other downloaded models, and rename it however you want. To complete the training and testing process run the following:
+
+```
+python main_classification.py --data_set ChestXray14  \
+--init DiRA \
+--proxy_dir path/to/pre-trained-model \
+--data_dir path/to/dataset \
+--train_list dataset/Xray14_train_official.txt \
+--val_list dataset/Xray14_val_official.txt \
+--test_list dataset/Xray14_test_official.txt 
+```
+
+This should train and test the model, outputting the AUC values over 14 trials.
