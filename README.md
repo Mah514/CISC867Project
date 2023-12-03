@@ -118,3 +118,11 @@ The above code loads a standard imagenet model, and then updates its weights wit
 
 
 You can also use our data_loader.py, which simply adds the CLAHE filter to the DRIVE dataset.
+
+
+## Other scripts
+format_test_list.py
+This script prepares the ChestX-ray 14 dataset for training by formatting the data correctly. It reads disease labels from a CSV file, encodes these labels into a binary format based on a predefined list of diseases, and matches these with corresponding image names from a separate file. The processed data is then written to a new file, creating a formatted dataset suitable for training purposes in a medical imaging context.
+
+separate_images.py
+This script is designed to organize image files into training and testing directories for a dataset. It reads lists of image filenames from specified text files and then moves these images from a common source directory to separate training and testing directories.
