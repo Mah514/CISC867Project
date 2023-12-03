@@ -195,7 +195,7 @@ def segmentation_engine(args, model_path, dataset_train, dataset_val, dataset_te
                                                      num_workers=args.train_num_workers)
         data_loader_val = torch.utils.data.DataLoader(dataset_val, batch_size=args.train_batch_size,
                                                       shuffle=False, num_workers=args.train_num_workers)
-        if args.init.lower() == "imagenet":
+        if args.init.lower() == "dira"
             print("Training DiRA")
             # Initialize U-Net with the specified backbone and 'imagenet' pre-trained weights
             model = smp.Unet(args.backbone, encoder_weights='imagenet', activation=args.activate)
@@ -223,52 +223,18 @@ def segmentation_engine(args, model_path, dataset_train, dataset_val, dataset_te
             # Load the adjusted state dictionary into the model
             msg = model.load_state_dict(state_dict, strict=False)
             print("=> loaded pre-trained model '{}'".format(weight))
-            print("missing keys:", msg.missing_keys)
+            #print("missing keys:", msg.missing_keys)
 
             # Determine which keys from the pre-trained model were used
             modified_custom_keys = set(state_dict.keys())  # Get the modified keys from your custom state dictionary
             used_keys = modified_custom_keys.intersection(unet_keys)
             #print("Keys from the pre-trained model that were used:", used_keys)
-
-
+        elif args.init.lower() == "imagenet":
+            print("Training imagenet")
+            model = smp.Unet(args.backbone, encoder_weights=args.init, activation=args.activate)
         else:
-            #model = smp.Unet(args.backbone, encoder_weights=args.proxy_dir, activation=args.activate)
-
-            # Load the model with default pre-trained weights
-           # model = smp.Unet(args.backbone, encoder_weights=None, activation=args.activate) 
-            # Load your custom weights
-           # custom_weights = torch.load('/home/jovyan/deeplearning/DiRA/classification_checkpoint/DiRA_moco/dira/checkpoint.pth') 
-            # Adjust the keys by removing the 'backbone.' prefix
-           # adjusted_weights = {k.replace('backbone.', ''): v for k, v in custom_weights.items()} 
-            # Update the model's weights
-           # model.load_state_dict(adjusted_weights, strict=False)
-           # 
-            backbone = 'resnet50'
-            weight = 'checkpoint.pth'
-            model = smp.Unet(backbone)
-            state_dict = torch.load(weight, map_location="cpu")
-            if "state_dict" in state_dict:
-                state_dict = state_dict["state_dict"]
-            state_dict = {k.replace("encoder.", ""): v for k, v in state_dict.items()}
-
-            # Remove keys related to fc and segmentation_head
-            for k in list(state_dict.keys()):
-                if k.startswith('fc') or k.startswith('segmentation_head'):
-                    del state_dict[k]
-
-            # Check for missing and unexpected keys
-            missing_keys = [key for key in model.state_dict().keys() if key not in state_dict]
-            unexpected_keys = [key for key in state_dict.keys() if key not in model.state_dict()]
-
-            # Print missing and unexpected keys
-           # print("Missing keys:", missing_keys)
-           # print("Unexpected keys:", unexpected_keys)
-
-            # Load the modified state dictionary
-            msg = model.load_state_dict(state_dict, strict=False)
-            print("=> loaded pre-trained model '{}'".format(weight))
-           # print("missing keys:", msg.missing_keys)
-
+            print("Training other model")
+            model = smp.Unet(args.backbone, encoder_weights=args.proxy_dir, activation=args.activate)
 
         optimizer = torch.optim.Adam(model.parameters(), args.learning_rate)
        # if torch.cuda.device_count() > 1:

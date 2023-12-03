@@ -1,22 +1,4 @@
-testing....
-testing....
-testing....
-Done testing iteration!
-[INFO] Dice = 67.12%
-Mean Dice = 0.6693
-testing....
-testing....
-Done testing iteration!
-[INFO] Dice = 78.99%
-Mean Dice = 0.7891
-testing....
-Done testing iteration!
-[INFO] Dice = 75.26%
-Mean Dice = 0.7511
-testing....
-Done testing iteration!
-[INFO] Dice = 77.56%
-Mean Dice = 0.7746
+DIRA CLAHE
 entered testing
 Checkpoint loaded.
 State dict adjusted.
@@ -25,18 +7,10 @@ Model moved to device.
 testing....
 Processing batch 1
 Done testing iteration!
-[INFO] Dice = 72.76%
-Mean Dice = 0.7255
-entered testing
-Checkpoint loaded.
-State dict adjusted.
-Model state dict loaded.
-Model moved to device.
-testing....
-Processing batch 1
-Done testing iteration!
-[INFO] Dice = 79.00%
-Mean Dice = 0.7894
+[INFO] Dice = 79.05%
+Mean Dice = 0.7898
+
+ImageNet CLAHE
 entered testing
 Checkpoint loaded.
 State dict adjusted.
@@ -47,6 +21,8 @@ Processing batch 1
 Done testing iteration!
 [INFO] Dice = 80.09%
 Mean Dice = 0.8004
+
+Moco CLAHE
 entered testing
 Checkpoint loaded.
 State dict adjusted.
@@ -55,8 +31,11 @@ Model moved to device.
 testing....
 Processing batch 1
 Done testing iteration!
-[INFO] Dice = 73.19%
-Mean Dice = 0.7309
+[INFO] Dice = 79.42%
+Mean Dice = 0.7936
+
+
+DIRA no CLAHE
 entered testing
 Checkpoint loaded.
 State dict adjusted.
@@ -65,5 +44,28 @@ Model moved to device.
 testing....
 Processing batch 1
 Done testing iteration!
-[INFO] Dice = 78.79%
-Mean Dice = 0.7873
+[INFO] Dice = 79.04%
+Mean Dice = 0.7896
+
+ImageNet no CLAHE
+entered testing
+Checkpoint loaded.
+State dict adjusted.
+Model state dict loaded.
+Model moved to device.
+testing....
+Processing batch 1
+Done testing iteration!
+[INFO] Dice = 79.15%
+Mean Dice = 0.7907
+
+Moco no CLAHE
+Checkpoint loaded.
+State dict adjusted.
+Model state dict loaded.
+Model moved to device.
+testing....
+Processing batch 1
+Done testing iteration!
+[INFO] Dice = 79.32%
+Mean Dice = 0.7926
