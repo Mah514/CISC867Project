@@ -9,7 +9,7 @@ The following instructions were pulled in part from the [DiRA Github Page](https
 Clone the DiRA repository and install requirements by executing the following command:
 
 ```
-$ git clone https://github.com/fhaghighi/DiRA.git
+git clone https://github.com/fhaghighi/DiRA.git
 ```
 
 From here, please replace the necessary files with our files located in the DiRA folder.
@@ -17,14 +17,14 @@ From here, please replace the necessary files with our files located in the DiRA
 Then, using our requirements.txt file, run the following:
 
 ```
-$ pip3 install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 From here, there are no additional changes that need to be made, and the rest can be run in a straightforward manner.
 
 Run the following to warm up the DiRA encoder and decoder (change epochs as desired)
 
 ```
-$ python main_DiRA_moco.py /path/to/images/folder --dist-url 'tcp://localhost:10001' --multiprocessing-distributed \
+python main_DiRA_moco.py /path/to/images/folder --dist-url 'tcp://localhost:10001' --multiprocessing-distributed \
 --world-size 1 --rank 0 --mlp --moco-t 0.2  --cos --mode dir --epochs 10
 ```
 
