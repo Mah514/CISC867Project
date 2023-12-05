@@ -55,7 +55,7 @@ python main_classification.py --data_set ChestXray14  \
 --test_list dataset/Xray14_test_official.txt 
 ```
 
-This should train and test the model, outputting the AUC values over 14 trials.
+This should train and test the model, outputting the AUC values over 14 trials. Or for CRLM dataset change the --data_set CRLM and the corresposnding image lists files
 
 
 ## Segmentation
@@ -126,3 +126,5 @@ This script prepares the ChestX-ray 14 dataset for training by formatting the da
 
 separate_images.py
 This script is designed to organize image files into training and testing directories for a dataset. It reads lists of image filenames from specified text files and then moves these images from a common source directory to separate training and testing directories.
+
+preprocess.ipynb is for prepreocessing the CRLM data
